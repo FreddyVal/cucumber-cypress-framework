@@ -1,5 +1,5 @@
 pipeline{
-    agent none
+    agent any
 
     parameters{
         string(name: "SPEC", defaultValue: "cypress/e2e/features/cart.feature", description:"Ej: cypress/e2e/features/cart.feature")
