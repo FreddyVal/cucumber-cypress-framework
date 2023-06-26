@@ -1,7 +1,7 @@
 pipeline{
     agent {
         dockerContainer {
-            image 'node:6-alpine'
+            image 'cypress/browsers:node18.12.0-chrome107'
         }
     }
 
