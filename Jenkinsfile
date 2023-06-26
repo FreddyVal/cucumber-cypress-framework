@@ -1,10 +1,5 @@
 pipeline{
-    agent {
-        dockerContainer {
-            image 'cypress/browsers:node18.12.0-chrome107'
-            args '-v /your/local/path:/app -w /app'
-        }
-    }
+    agent any
 
     parameters{
         string(name: "SPEC", defaultValue: "cypress/e2e/**/**", description:"Ej: cypress/e2e/features/cart.feature")
@@ -17,20 +12,15 @@ pipeline{
     }
 
     stages{
+        stage('Checkout'){
+            git 'https://github.com/FreddyVal/cucumber-cypress-framework'
+        }
         stage('Build'){
-            steps{
-                echo "Building application"
-            }
+            sh "npm install"
         }
-        stage('Testing'){
-            steps{
-                sh "npm i"
-                sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
-            }
-        }
-        stage('Deploy'){
-            steps{
-                echo "Deploying the application"
+        stage('Run Cypress Tests'){
+            docker.image('cypress/browsers:node14.17.0-chrome91').inside {
+                sh 'npm run cypress:run'
             }
         }
 
