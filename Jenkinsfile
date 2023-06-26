@@ -1,5 +1,5 @@
 pipeline{
-    agent any
+    agent none
 
     parameters{
         string(name: "SPEC", defaultValue: "cypress/e2e/features/cart.feature", description:"Ej: cypress/e2e/features/cart.feature")
@@ -18,11 +18,16 @@ pipeline{
             }
         }
         stage('Testing'){
+
+            agent {
+                docker {
+                    image 'cypress/browsers:node18.12.0-chrome107'
+                }
+            }
             steps{
-                docker.image('cypress/browsers:node18.12.0-chrome107').inside {
-                    sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
-                //sh 'npm run cypress:run'
-               }
+                
+                sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
+               
             }
         }
         stage('Deploy'){
