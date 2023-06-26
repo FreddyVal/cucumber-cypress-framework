@@ -18,7 +18,7 @@ pipeline{
             }
         }
         stage('Testing'){
-            }
+            
             steps{
                 sh "docker build -t cucumberproject:1.1 ."
                 //sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
