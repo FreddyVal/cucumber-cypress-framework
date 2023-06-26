@@ -2,6 +2,7 @@ pipeline{
     agent {
         dockerContainer {
             image 'cypress/browsers:node18.12.0-chrome107'
+            args '-v /your/local/path:/app -w /app'
         }
     }
 
