@@ -1,10 +1,6 @@
 pipeline{
     agent any
 
-    nodejs('NodeJS 20.3.1') {
-    // some block
-    }
-
     parameters{
         string(name: "SPEC", defaultValue: "cypress/e2e/**/**", description:"Ej: cypress/e2e/features/cart.feature")
         choice(name:"BROWSER", choices: ['chrome','edge'], description: "Escoja un browser para ejecucion")
@@ -22,12 +18,11 @@ pipeline{
             }
         }
         stage('Testing'){
-            nodejs('NodeJS 20.3.1') {
-                sh "npm i"
-            }
             steps{
-                
-                sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
+                docker.image('cypress/browsers:node18.12.0-chrome107').inside {
+                    sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
+                //sh 'npm run cypress:run'
+    }           }
             }
         }
         stage('Deploy'){
