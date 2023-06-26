@@ -22,8 +22,11 @@ pipeline{
             }
         }
         stage('Testing'){
-            steps{
+            nodejs('NodeJS 20.3.1') {
                 sh "npm i"
+            }
+            steps{
+                
                 sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
             }
         }
