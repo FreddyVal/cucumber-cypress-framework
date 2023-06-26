@@ -18,16 +18,11 @@ pipeline{
             }
         }
         stage('Testing'){
-
-            agent {
-                docker {
-                    image 'cypress/browsers:node18.12.0-chrome107'
-                }
             }
             steps{
-                
-                sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
-               
+                sh "docker build -t cucumberproject:1.1 ."
+                //sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
+                sh "docker run -i -t cucumberproject:1.1 cypress run --spec ${SPEC} --browser ${BROWSER}"
             }
         }
         stage('Deploy'){
