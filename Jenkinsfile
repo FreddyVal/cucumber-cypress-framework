@@ -12,15 +12,20 @@ pipeline{
     }
 
     stages{
-        stage('Checkout'){
-            git 'https://github.com/FreddyVal/cucumber-cypress-framework'
-        }
         stage('Build'){
-            sh "npm install"
+            steps{
+                echo "Building application"
+            }
         }
-        stage('Run Cypress Tests'){
-            docker.image('cypress/browsers:node14.17.0-chrome91').inside {
-                sh 'npm run cypress:run'
+        stage('Testing'){
+            steps{
+                sh "npm i"
+                sh "npx cypress run --browser ${BROWSER} --spec ${SPEC}"
+            }
+        }
+        stage('Deploy'){
+            steps{
+                echo "Deploying the application"
             }
         }
 
