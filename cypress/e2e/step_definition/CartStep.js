@@ -10,9 +10,9 @@ Given('El usuario ingresa a {string}', (pagina) => {
 When('Agrega un {string} al carrito de compras desde el modulo de {string}', (producto,modulo) => {
     cy.contains('a', modulo).click()
     cy.contains('a', producto).click()
-    cy.wait(2000)
+    cy.wait(5000)
     productDetailPage.clickAddToCart()
-    cy.wait(2000)
+    cy.wait(5000)
     productDetailPage.clickCart()
 });
 
