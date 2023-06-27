@@ -8,7 +8,7 @@ Feature: Carrito de compras
     Scenario Outline: Scenario Outline name: El usuario agrega y elimina un elemento del carrito de compras
         Given El usuario ingresa a '<pagina>'
         When Agrega un '<producto>' al carrito de compras desde el modulo de '<modulo>'
-        Then El producto '<producto>' se muestra en la opcion del carrito de compras
+        And El producto '<producto>' se muestra en la opcion del carrito de compras
         Then Al eliminar el producto del carrito ya no se muestra
 
         Examples:

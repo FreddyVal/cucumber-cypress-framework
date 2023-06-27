@@ -1,24 +1,102 @@
 const { defineConfig } = require("cypress");
 const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
-const addCucumberPreprocessorPlugin = require ("@badeball/cypress-cucumber-preprocessor");
 const createEsbuildPlugin = require ("@badeball/cypress-cucumber-preprocessor/esbuild");
 const preprocessor = require("@badeball/cypress-cucumber-preprocessor");
+const allureWriter = require("@shelex/cypress-allure-plugin/writer");
+const webpack = require('@cypress/webpack-preprocessor');
 
-async function setupNodeEvents(on, config) {
-  // This is required for the preprocessor to be able to generate JSON reports after each run, and more,
-  await preprocessor.addCucumberPreprocessorPlugin(on, config);
+module.exports = defineConfig({
+  e2e: {
+    specPattern: "cypress/e2e/features/*.feature",
+    baseUrl: "https://www.demoblaze.com/",
+    setupNodeEvents: async function (on, config) {
+        await preprocessor.addCucumberPreprocessorPlugin(on, config);
+        on(
+            'file:preprocessor',
+            webpack({
+                webpackOptions: {
+                    resolve: { extensions: ['.ts', '.js'] },
+                    module: {
+                        rules: [
+                            {
+                                test: /\.feature$/,
+                                use: [
+                                    {
+                                        loader: '@badeball/cypress-cucumber-preprocessor/webpack',
+                                        options: config
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            })
+        );
 
-  on(
-    "file:preprocessor",
-    createBundler({
-      plugins: [createEsbuildPlugin.default(config)],
-    })
-  );
+        allureWriter(on, config);
+        on('task', {
+            readAllureResults: () => {
+                try {
+                    const dir = 'cypress/fixtures';
+                    const subdirs = ['basic', 'cucumber', 'statuses'];
+                    return subdirs.reduce((dirMap, subdir) => {
+                        const dirFiles = fs.readdirSync(
+                            path.join(dir, subdir)
+                        );
+                        dirMap[subdir] = dirFiles.reduce((fileMap, f) => {
+                            const getType = (file) => {
+                                const types = {
+                                    suites: (f) => f.includes('-container'),
+                                    tests: (f) => f.includes('-result'),
+                                    attachments: (f) =>
+                                        f.includes('-attachment')
+                                };
+                                return Object.keys(types).find((type) =>
+                                    types[type](file)
+                                );
+                            };
 
-  // Make sure to return the config object as it might have been modified by the plugin.
-  return config;
-}
+                            const resultType = getType(f);
 
+                            const fileContent = fs.readFileSync(
+                                path.join(dir, subdir, f),
+                                {
+                                    encoding: 'utf-8'
+                                }
+                            );
+
+                            const fileValue = f.endsWith('.json')
+                                ? {
+                                      ...JSON.parse(fileContent),
+                                      fileName: f
+                                  }
+                                : {
+                                      content: fileContent.substr(0, 20),
+                                      fileName: f
+                                  };
+
+                            !fileMap[resultType] &&
+                                (fileMap[resultType] = []);
+
+                            fileMap[resultType].push(fileValue);
+                            return fileMap;
+                        }, {});
+                        return dirMap;
+                    }, {});
+                } catch (e) {
+                    return e;
+                }
+            }
+        });
+        return config;
+    },
+    env: {
+      allureReuseAfterSpec: true,
+    },
+  },
+});
+
+/*****Anterior a la implementacion de Allure
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents,
@@ -26,25 +104,7 @@ module.exports = defineConfig({
     baseUrl: "https://www.demoblaze.com/",
     chromeWebSecurity: false,
     env: {
+      allureReuseAfterSpec: true,
     },
   },
-});
-/*
-module.exports = defineConfig({
-  e2e: {
-    specPattern: "cypress/e2e/features/*.feature",
-    async setupNodeEvents(on, config) {
-      await addCucumberPreprocessorPlugin(on, config)
-      on(
-        "file:preprocessor",
-        createBundler({
-          plugins: [createEsbuildPlugin(config)]
-        })
-      )
-      return config
-    },
-    specPattern:"cypress/e2e/feature/*.feature",
-    baseUrl:"https://www.demoblaze.com/",
-    chromeWebSecurity: false,
-  },  
 });*/

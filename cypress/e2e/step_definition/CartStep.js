@@ -1,16 +1,18 @@
-const {Then, When, Given, Before} = require("@badeball/cypress-cucumber-preprocessor");
+const {Then, When, Given} = require("@badeball/cypress-cucumber-preprocessor");
 const {productDetailPage} = require ('../pages/ProductDetailPage');
 const {cartPage} = require ('../pages/CartPage');
 
 Given('El usuario ingresa a {string}', (pagina) => {
-    cy.visit("/")
+    //cy.visit("/") - Visita la pagina definida en cypress.config.js
+    cy.visit(pagina)
 });
 
 When('Agrega un {string} al carrito de compras desde el modulo de {string}', (producto,modulo) => {
     cy.contains('a', modulo).click()
     cy.contains('a', producto).click()
-    cy.wait(1000)
+    cy.wait(2000)
     productDetailPage.clickAddToCart()
+    cy.wait(2000)
     productDetailPage.clickCart()
 });
 
